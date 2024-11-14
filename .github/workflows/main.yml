@@ -1,0 +1,47 @@
+name: Build Android APK
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'packages/flutter/**'
+
+permissions: read-all
+
+jobs:
+  build:
+    name: Build APK
+    runs-on: ubuntu-latest
+    
+    steps:
+      # Step 1: Checkout the code from the repository
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Step 2: Set up Flutter SDK
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.7.0'  # Specify the desired version of Flutter
+
+      # Step 3: Install dependencies (get packages)
+      - name: Install dependencies
+        run: flutter pub get
+
+      # Step 4: Add SMS permissions to the AndroidManifest (if necessary)
+      - name: Add SMS permission to Android Manifest
+        run: |
+          sed -i '/<\/application>/i <uses-permission android:name="android.permission.SEND_SMS" />' android/app/src/main/AndroidManifest.xml
+          sed -i '/<\/application>/i <uses-permission android:name="android.permission.RECEIVE_SMS" />' android/app/src/main/AndroidManifest.xml
+
+      # Step 5: Build the APK in release mode
+      - name: Build APK
+        run: flutter build apk --release
+
+      # Step 6: Upload the APK as an artifact (optional, to download the APK after the build)
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-release.apk
+          path: build/app/outputs/flutter-apk/app-release.apk
