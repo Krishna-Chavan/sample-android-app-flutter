@@ -2,10 +2,9 @@ name: Build Android APK
 
 on:
   push:
-    branches:
-      - main
-    paths:
-      - 'packages/flutter/**'
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 permissions: read-all
 
